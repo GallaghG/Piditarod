@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<script>
+
+
+function csvToTable(s) {
+	var buffer = "<table>"
+	var sLines = s.split("\n");
+	for (var i = 0; i < sLines.length; i++) {
+		buffer += "<tr>"
+		var data = sLines[i].split(",")
+		for (var j = 0; j< data.length; j++) {
+			if (i == 0) {
+				buffer += "<th>"
+				buffer += data[j]
+				buffer += "</th>"
+			} else {
+				buffer += "<td>"
+				buffer += data[j]
+				buffer += "</td>"
+			}
+		
+		}
+		buffer += "</tr>"
+	}
+	
+	buffer += "</table>"
+	return buffer
+}
+
+
+var data = new XMLHttpRequest();
+data.open("GET", "https://dl.dropboxusercontent.com/s/oxu253205oy9s4k/testdata.csv?dl=1", true);
+data.send();
+
+
+
+data.onreadystatechange = function() {
+  	document.getElementById("data").innerHTML = csvToTable(data.responseText)
+    console.log(data.responseText);
+};
+
+</script>
+
+<style>
+
+table 
+
+table {
+    /* Remove spacing between table cells (from Normalize.css) */
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    border: 1px solid #cbcbcb;
+}
+
+td {
+    background-color: transparent;
+}
+
+td, th {
+    border-left: 1px solid #cbcbcb;/*  inner column border */
+    border-width: 0 0 0 1px;
+    font-size: inherit;
+    margin: 0;
+    overflow: visible; /*to make ths where the title is really long work*/
+    padding: 0.5em 1em; /* cell padding */
+}
+
+th {
+    background-color: #e0e0e0;
+    color: #000;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+</style>
+</head>
+
+<body>
+<div id="data">
+
+</div>
+
+
+</body>
+
+</html>
