@@ -1,39 +1,41 @@
+#!/usr/bin/env python3
+
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import csv #allows handling of csv files
 
+if __name__ == "__main__":
+
+	gauth = GoogleAuth()
+	# Try to load saved client credentials
+	gauth.LoadCredentialsFile("mycreds.txt")
+	if gauth.credentials is None:
+		# Authenticate if they're not there
+		gauth.LocalWebserverAuth()
+	elif gauth.access_token_expired:
+		# Refresh them if expired
+		gauth.Refresh()
+	else:
+		# Initialize the saved creds
+		gauth.Authorize()
+	# Save the current credentials to a file
+	gauth.SaveCredentialsFile("mycreds.txt")
+
+	#creates a csv file using the dictionary method as described in the documentation
+	with open('temp.csv', 'w') as csvfile:
+		fieldnames = ['Time', 'Temp']
+		writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+		writer.writeheader()
+		writer.writerow({'Time': '09:30', 'Temp': '-20'})
+		writer.writerow({'Time': '09:35', 'Temp': '-19'})
+		writer.writerow({'Time': '09:40', 'Temp': '-15'})
+	csvfile.close()
 
 
-gauth = GoogleAuth()
-# Try to load saved client credentials
-gauth.LoadCredentialsFile("mycreds.txt")
-if gauth.credentials is None:
-    # Authenticate if they're not there
-    gauth.LocalWebserverAuth()
-elif gauth.access_token_expired:
-    # Refresh them if expired
-    gauth.Refresh()
-else:
-    # Initialize the saved creds
-    gauth.Authorize()
-# Save the current credentials to a file
-gauth.SaveCredentialsFile("mycreds.txt")
 
-#creates a csv file using the dictionary method as described in the documentation
-with open('temp.csv', 'w') as csvfile:
-    fieldnames = ['Time', 'Temp']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+	drive = GoogleDrive(gauth)
+	file1 = drive.CreateFile({'title': 'temp.csv', 'mimetype': 'csv'}) #open a new file on the dropbox
+	file1.SetContentFile('temp.csv') #sets the file content to the CSV file created above from the working directory
 
-    writer.writeheader()
-    writer.writerow({'Time': '09:30', 'Temp': '-20'})
-    writer.writerow({'Time': '09:35', 'Temp': '-19'})
-    writer.writerow({'Time': '09:40', 'Temp': '-15'})
-csvfile.close()
-
-
-
-drive = GoogleDrive(gauth)
-file1 = drive.CreateFile({'title': 'temp.csv', 'mimetype': 'csv'}) #open a new file on the dropbox
-file1.SetContentFile('temp.csv') #sets the file content to the CSV file created above from the working directory
-
-file1.Upload() #upload the file
+	file1.Upload() #upload the file
