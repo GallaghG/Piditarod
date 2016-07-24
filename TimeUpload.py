@@ -3,7 +3,7 @@ from pydrive.drive import GoogleDrive
 import time
 import csv
 
-timeID='0B9ffTjUEqeFEZ28zdTRhMlJlY0k'
+timeID='1dOSC8bndzenu6MRX5jmmnvbASc57E0FH7bVZgGoxaOc' #the is is the fileID for the google sheet 'time.csv'
 for i in range(10):
 #get the curret time
     date_time=time.asctime()
@@ -29,8 +29,11 @@ for i in range(10):
 
     drive = GoogleDrive(gauth)
     #Download the prior file that we will append the new data to
-    current=drive.CreateFile({'id': timeID})
-    current.GetContentFile('current.csv')
+    #Added the convert parameter to download the google sheet as a CSV file
+    current=drive.CreateFile({'id': timeID,'convert': True, 'mimetype':'application/vnd.google-apps.spreadsheet'})
+    #add the desired mimetype of CSV for the downloaded file
+    current.GetContentFile('current.csv', mimetype='text/csv')
+
     
     #delete the prior data file to keep these files from accumulating on the GDrive
     #current.DeleteFile(timeID)
@@ -39,12 +42,13 @@ for i in range(10):
     with open('current.csv', 'a') as csvfile:
         fieldnames = ['Time', 'Date']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writerow({}) #need to add a delimiter to the converted google sheet file
         writer.writerow({'Time': time_only, 'Date': date_only})
     csvfile.close()
        
     file1 = drive.CreateFile({'title':'time.csv', 'id': timeID}) #open a new file on the GDrive
     file1.SetContentFile('current.csv') #sets the file content to the CSV file created above from the working directory
-    file1.Upload() #upload the file
+    file1.Upload({'convert': True}) #upload the file and convert to google sheet format
     timeID=file1['id']
 
     time.sleep(30) #pause for 30seconds
